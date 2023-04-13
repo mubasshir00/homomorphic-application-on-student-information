@@ -1,0 +1,21 @@
+[
+  {
+    "semester_name": "fall",
+    "course_code": "CSE115",
+    "course_grade": "D",
+    "course_credit": 3
+  },
+  {
+    "semester_name": "spring",
+    "course_code": "GEO205",
+    "course_grade": "C",
+    "course_credit": 3
+  },
+  {
+    "semester_name": "summer",
+    "course_code": "MAT125",
+    "course_grade": "B",
+    "course_credit": 3
+  },
+  { "CGPA": 2 }
+]
