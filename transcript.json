@@ -5,7 +5,7 @@
     "course_code": "CSE115",
     "course_credit": 3,
     "Course Title": "Programming Language I",
-    "course_grade": "D",
+    "course_grade": "D+",
     "cr_count": 3
   },
   {
@@ -23,7 +23,7 @@
     "course_code": "MAT125",
     "course_credit": 3,
     "Course Title": "Introduction to Linear Algebra",
-    "course_grade": "B",
+    "course_grade": "B+",
     "cr_count": 3
   }
 ]
