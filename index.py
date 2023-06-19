@@ -3,7 +3,6 @@ from Pyfhel import Pyfhel
 import json
 from Crypto.Util import number
 
-    
 from Crypto.Util.number import *
 from Crypto import Random
 import Crypto
@@ -91,6 +90,8 @@ def homomorphicDiv(input1,input2):
     finalData = [a,v_r]
     return finalData
 
+
+
 def string_to_ascii(s):
     ascii_vals = []
     for c in s:
@@ -165,29 +166,58 @@ for i in data:
     gradeSum = 0
     gradePoint = 1
     if(i['course_grade']=='D'):
-        gradePoint = 1
+        gradePoint = 1*1000
     elif(i['course_grade']=='C'):
-        gradePoint = 2
+        gradePoint = 2*1000
     elif(i['course_grade']=='B'):
-        gradePoint = 3
+        gradePoint = 3*1000
+    elif(i['course_grade']=='B+'):
+        gradePoint = math.floor(3.7*1000)
+    elif(i['course_grade']=='D+'):
+        gradePoint = math.floor(1.7*1000)
     tempMulti = homomorphicMultiply(i['course_credit'], gradePoint)
     sumOfCredit=sumOfCredit+i['course_credit']
     multiplicationTemp = max(multiplicationTemp, tempMulti)
-    sumOfGradMult = sumOfGradMult+multiplicationTemp
-    finalGrade=homomorphicDiv(sumOfGradMult,sumOfCredit)
+    sumOfGradMult = (sumOfGradMult)+multiplicationTemp
 
-    
+    # finalGrade=homomorphicDiv(sumOfGradMult,sumOfCredit)
 
-print(finalGrade)
+encryptGradeMultAscii = string_to_ascii(str(sumOfGradMult))
+tempAsciiMult=[]
+tempAsciiMult1=[]
+for j in encryptGradeMultAscii:
+        tempAsciiMult.append(encryptNormalText(j))
+# print("encryptGradeMult",tempAsciiMult)
+
+for j in encryptGradeMultAscii:
+    tempAsciiMult1.append(decryptedNormalText(j))
+
+depcryptedGradeMult = ascii_to_word(tempAsciiMult1)
+
+
+encryptsumOfCreditAscii = string_to_ascii(str(sumOfCredit))
+tempAsciisumOfCredit=[]
+tempAsciisumOfCredit1=[]
+for j in encryptsumOfCreditAscii:
+        tempAsciisumOfCredit.append(encryptNormalText(j))
+# print("encryptGradeMult",tempAsciiMult)
+
+for j in encryptsumOfCreditAscii:
+    tempAsciisumOfCredit1.append(decryptedNormalText(j))
+
+depcryptedsumOfCredit = ascii_to_word(tempAsciisumOfCredit1)
+
+finalGrade=(int(depcryptedGradeMult)/int(depcryptedsumOfCredit))/1000
+
 finalEncryptedData.append({
-    "CGPA" : finalGrade[0]
+    "CGPA" : [encryptGradeMultAscii,encryptsumOfCreditAscii]
 })
-
+print(tempAsciisumOfCredit1)
 with open("encrypted.json", "w") as outfile:
     json.dump(finalEncryptedData, outfile)
 
 finalDecryptedData.append({
-    "CGPA" : finalGrade[1]
+    "CGPA" : finalGrade
 })
 with open("decrypted.json", "w") as outfile:
     json.dump(finalDecryptedData, outfile)

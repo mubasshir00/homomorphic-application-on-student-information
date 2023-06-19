@@ -212,7 +212,7 @@ finalGrade=(int(depcryptedGradeMult)/int(depcryptedsumOfCredit))/1000
 finalEncryptedData.append({
     "CGPA" : [encryptGradeMultAscii,encryptsumOfCreditAscii]
 })
-
+print(tempAsciisumOfCredit1)
 with open("encrypted.json", "w") as outfile:
     json.dump(finalEncryptedData, outfile)
 
