@@ -80,9 +80,9 @@ def cgpaCount(data):
     gradePoint = 1
     totalCredit =0
     for i in data:
-        gradePoint = gradingPolicy(i['course_grade'])*i['course_credit']
+        gradePoint = gradingPolicy(i['course_grade'])*float(i['course_credit'])
         gradeSum += gradePoint
-        totalCredit += i['course_credit']
+        totalCredit += float(i['course_credit'])
     return gradeSum/totalCredit
 
 
@@ -100,14 +100,38 @@ def gradingPolicy(grade):
 
     return gradPoint
 
-def main():
-    #read data
-    f = open('transcript1.json')
-    data = json.load(f)
-    newTranscript = data
+def cgpaCountFromEncryptedData(data):
+    for i in data:
+        if("cgpa" in i):
+            i['cgpa'] = base64.b64decode(i['cgpa'])
+        else:
+            i['semester_name'] = base64.b64decode(i['semester_name'])
+            i['course_code'] = base64.b64decode(i['course_code'])
+            i['course_grade'] = base64.b64decode(i['course_grade'])
+            i['course_credit'] = base64.b64decode(i['course_credit'])
+
+    for i in data:
+        if("cgpa" in i):
+            i['cgpa'] = decryptDataRSA(i['cgpa'])
+        else:
+            i['semester_name'] = decryptDataRSA(i['semester_name'])
+            i['course_code'] = decryptDataRSA(i['course_code'])
+            i['course_grade'] = decryptDataRSA(i['course_grade'])
+            i['course_credit'] = decryptDataRSA(i['course_credit'])
 
     totalCGPANow = encryptDataRSA(str(cgpaCount(data)))
     encodedCGPA = base64.b64encode(totalCGPANow).decode("utf-8")
+    return encodedCGPA
+    # print(totalCGPANow)
+
+def main():
+    #read data
+    f = open('transcript.json')
+    data = json.load(f)
+    newTranscript = data
+
+    # totalCGPANow = encryptDataRSA(str(cgpaCount(data)))
+    # encodedCGPA = base64.b64encode(totalCGPANow).decode("utf-8")
 
     for i in newTranscript:
         i['semester_name'] = encryptDataRSA(i['semester_name'])
@@ -121,10 +145,17 @@ def main():
         i['course_grade'] = base64.b64encode(i['course_grade']).decode("utf-8")
         i['course_credit'] = base64.b64encode(i['course_credit']).decode("utf-8")
 
-    newTranscript.append({'cgpa': encodedCGPA})
+    # newTranscript.append({'cgpa': encodedCGPA})
 
     with open("rsa_encrypted.json", "w") as outfile:
         json.dump(newTranscript, outfile)
+
+    loadData = open('rsa_encrypted.json')
+    encryptedData = json.load(loadData)
+
+    totalCGPA = cgpaCountFromEncryptedData(encryptedData)
+
+    newTranscript.append({'cgpa': totalCGPA})
 
     for i in newTranscript:
         if("cgpa" in i):

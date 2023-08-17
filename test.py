@@ -125,7 +125,7 @@ def decryptedNormalText(m):
     return m_dec
 
 def main():
-    f = open('transcript1.json')
+    f = open('transcript.json')
     data = json.load(f)
     finalEncryptedData = []
     finalDecryptedData = []
