@@ -3,6 +3,9 @@ from cryptography.hazmat.primitives import serialization, hashes
 
 import json
 import base64
+import time
+
+start_time = time.time()
 
 # Generate RSA key pair
 private_key = rsa.generate_private_key(
@@ -72,22 +75,45 @@ def decryptDataRSA(ciphertext):
     #print("Decrypted data:", decrypted_data.decode("utf-8"))
     return decrypted_data.decode("utf-8")
 
+def cgpaCount(data):
+    gradeSum = 0
+    gradePoint = 1
+    totalCredit =0
+    for i in data:
+        gradePoint = gradingPolicy(i['course_grade'])*i['course_credit']
+        gradeSum += gradePoint
+        totalCredit += i['course_credit']
+    return gradeSum/totalCredit
+
+
+def gradingPolicy(grade):
+    if(grade == "D"):
+        return 1
+    elif(grade == "C"):
+        return 2
+    elif(grade == "B"):
+        return 3
+    elif(grade == "B+"):
+        return 3.7
+    elif(grade == "D+"):
+        return 1.7
+
+    return gradPoint
 
 def main():
     #read data
-    f = open('transcript.json')
+    f = open('transcript1.json')
     data = json.load(f)
     newTranscript = data
+
+    totalCGPANow = encryptDataRSA(str(cgpaCount(data)))
+    encodedCGPA = base64.b64encode(totalCGPANow).decode("utf-8")
+
     for i in newTranscript:
         i['semester_name'] = encryptDataRSA(i['semester_name'])
         i['course_code'] = encryptDataRSA(i['course_code'])
         i['course_grade'] = encryptDataRSA(i['course_grade'])
         i['course_credit'] = encryptDataRSA(str(i['course_credit']))
-
-    print(newTranscript)
-
-    # with open("rsa_encrypted.json","w") as outfile:
-    #     json.dump(newTranscript, outfile)
 
     for i in newTranscript:
         i['semester_name'] = base64.b64encode(i['semester_name']).decode("utf-8")
@@ -95,26 +121,36 @@ def main():
         i['course_grade'] = base64.b64encode(i['course_grade']).decode("utf-8")
         i['course_credit'] = base64.b64encode(i['course_credit']).decode("utf-8")
 
+    newTranscript.append({'cgpa': encodedCGPA})
+
     with open("rsa_encrypted.json", "w") as outfile:
         json.dump(newTranscript, outfile)
 
-    print('----------------------------------')
+    for i in newTranscript:
+        if("cgpa" in i):
+            i['cgpa'] = base64.b64decode(i['cgpa'])
+        else:
+            i['semester_name'] = base64.b64decode(i['semester_name'])
+            i['course_code'] = base64.b64decode(i['course_code'])
+            i['course_grade'] = base64.b64decode(i['course_grade'])
+            i['course_credit'] = base64.b64decode(i['course_credit'])
 
     for i in newTranscript:
-        i['semester_name'] = base64.b64decode(i['semester_name'])
-        i['course_code'] = base64.b64decode(i['course_code'])
-        i['course_grade'] = base64.b64decode(i['course_grade'])
-        i['course_credit'] = base64.b64decode(i['course_credit'])
+        if("cgpa" in i):
+            i['cgpa'] = decryptDataRSA(i['cgpa'])
+        else:
+            i['semester_name'] = decryptDataRSA(i['semester_name'])
+            i['course_code'] = decryptDataRSA(i['course_code'])
+            i['course_grade'] = decryptDataRSA(i['course_grade'])
+            i['course_credit'] = decryptDataRSA(i['course_credit'])
 
-    for i in newTranscript:
-        i['semester_name'] = decryptDataRSA(i['semester_name'])
-        i['course_code'] = decryptDataRSA(i['course_code'])
-        i['course_grade'] = decryptDataRSA(i['course_grade'])
-        i['course_credit'] = decryptDataRSA(i['course_credit'])
-
-    print(newTranscript)
     with open("rsa_decrypted.json", "w") as outfile:
         json.dump(newTranscript, outfile)
     
 
 main()
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+print(f"Elapsed time: {elapsed_time:.6f} seconds")
